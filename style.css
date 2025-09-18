@@ -1,0 +1,91 @@
+/* 🌌 Fond cosmique */
+body {
+  margin: 0;
+  font-family: 'Orbitron', sans-serif;
+  background: radial-gradient(circle at center, #000011, #000000);
+  color: #ffffff;
+  overflow-x: hidden;
+}
+
+/* 🧬 Panneau de modules */
+#cosmicPanel {
+  background: linear-gradient(to top, #111122, #000000);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px #0ff;
+  max-width: 400px;
+  margin: 20px auto;
+  animation: solarPulse 12s infinite;
+}
+
+.moduleToggle {
+  margin: 12px 0;
+  font-size: 1.2em;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.moduleToggle:hover {
+  transform: scale(1.05);
+}
+
+/* 🌠 Halo orbital à l’activation */
+.moduleToggle input:checked + label::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120px;
+  height: 120px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,255,255,0.4) 0%, transparent 70%);
+  animation: pulseHalo 1.5s ease-out;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes pulseHalo {
+  0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.8; }
+  50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.4; }
+  100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+}
+
+/* 🌞 Pulsation solaire du panneau */
+@keyframes solarPulse {
+  0% { box-shadow: 0 0 10px #ff0; }
+  50% { box-shadow: 0 0 30px #f80; }
+  100% { box-shadow: 0 0 10px #ff0; }
+}
+
+/* 🕳️ Ambiance sous-terraine */
+body.sousTerre {
+  background: radial-gradient(circle, #400010, #000000);
+  animation: pulseSousTerre 3s infinite;
+}
+
+@keyframes pulseSousTerre {
+  0% { box-shadow: inset 0 0 10px #f00; }
+  50% { box-shadow: inset 0 0 30px #800; }
+  100% { box-shadow: inset 0 0 10px #f00; }
+}
+
+/* 🌀 Canvas orbital */
+canvas {
+  display: block;
+  margin: 20px auto;
+  max-width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0,255,255,0.3);
+}
+
+/* 📡 Bloc de vitesse */
+#vitesseBloc {
+  text-align: center;
+  font-size: 1.1em;
+  margin-top: 10px;
+  padding: 10px;
+  background: rgba(0,0,0,0.5);
+  border-radius: 8px;
+  box-shadow: 0 0 10px #0ff;
+  }
