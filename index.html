@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0ff" />
+  <title>Cockpit Cosmique</title>
+  <link rel="manifest" href="manifest.json" />
+  <script src="settings.js"></script>
+  <style>
+    body {
+      margin: 0;
+      background: radial-gradient(#000, #111);
+      color: #fff;
+      font-family: monospace;
+    }
+    .module { margin-bottom: 2em; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h1 style="text-align:center;">🪐 Cockpit Cosmique</h1>
+
+  <div id="modules"></div>
+
+  <script>
+    const modules = [
+      'interface',
+      'vitesse',
+      'soleil-lune',
+      'orbital',
+      'sphere',
+      'meteo',
+      'capteurs'
+    ];
+
+    modules.forEach(name => {
+      fetch(`modules/${name}.html`)
+        .then(res => res.text())
+        .then(html => {
+          const container = document.createElement('div');
+          container.innerHTML = html;
+          document.getElementById('modules').appendChild(container);
+        });
+    });
+  </script>
+</body>
+  </html>
+  
