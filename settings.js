@@ -1,13 +1,11 @@
-const CockpitSettings = {
-  get(key, fallback = null) {
-    const val = localStorage.getItem(key);
-    return val !== null ? JSON.parse(val) : fallback;
-  },
-  set(key, value) {
-    localStorage.setItem(key, JSON.stringify(value));
-  },
-  toggle(key) {
-    const current = CockpitSettings.get(key, false);
-    CockpitSettings.set(key, !current);
-  }
-};
+function estActif(module) {
+  return localStorage.getItem(module + "Actif") === "true";
+}
+
+function chargerModule(url) {
+  fetch(url).then(r => r.text()).then(html => {
+    const div = document.createElement("div");
+    div.innerHTML = html;
+    document.body.appendChild(div);
+  });
+}
