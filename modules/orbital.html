@@ -1,0 +1,76 @@
+<section id="orbitalPanel" class="module">
+  <style>
+    #orbitalCanvas {
+      background: radial-gradient(#000, #111);
+      border-radius: 50%;
+      box-shadow: 0 0 24px #0ff inset;
+      margin-top: 1em;
+      display: block;
+    }
+  </style>
+
+  <h3>🪐 Orbite solaire & lunaire</h3>
+  <canvas id="orbitalCanvas" width="300" height="300"></canvas>
+
+  <script>
+    const canvas = document.getElementById('orbitalCanvas');
+    const ctx = canvas.getContext('2d');
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = 100;
+    const lon = 5.3698;
+
+    function heureSolaireAngle(date, longitude) {
+      const minutesUTC = date.getUTCHours() * 60 + date.getUTCMinutes();
+      const offset = longitude * 4;
+      const minutesSolaires = (minutesUTC + offset + 1440) % 1440;
+      return (minutesSolaires / 1440) * 2 * Math.PI;
+    }
+
+    function phaseLunaire(date) {
+      const synodique = 29.53058867;
+      const newMoon = new Date('2025-09-03T06:00:00Z');
+      const diff = (date - newMoon) / (1000 * 60 * 60 * 24);
+      const phase = (diff % synodique) / synodique;
+      return +(phase * 100).toFixed(2);
+    }
+
+    function drawOrbitalCycle() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const now = new Date();
+      const solarAngle = heureSolaireAngle(now, lon);
+      const phase = phaseLunaire(now) / 100;
+      const lunarAngle = solarAngle + Math.PI * phase;
+
+      // Soleil
+      const sunX = centerX + radius * Math.cos(solarAngle);
+      const sunY = centerY + radius * Math.sin(solarAngle);
+      ctx.beginPath();
+      ctx.arc(sunX, sunY, 10, 0, 2 * Math.PI);
+      ctx.fillStyle = '#ffcc00';
+      ctx.shadowColor = '#ffcc00';
+      ctx.shadowBlur = 12;
+      ctx.fill();
+
+      // Lune
+      const moonX = centerX + radius * Math.cos(lunarAngle);
+      const moonY = centerY + radius * Math.sin(lunarAngle);
+      ctx.beginPath();
+      ctx.arc(moonX, moonY, 8, 0, 2 * Math.PI);
+      ctx.fillStyle = '#ccccff';
+      ctx.shadowColor = '#ccccff';
+      ctx.shadowBlur = 8;
+      ctx.fill();
+
+      // Noyau central
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, 6, 0, 2 * Math.PI);
+      ctx.fillStyle = '#0ff';
+      ctx.fill();
+    }
+
+    drawOrbitalCycle();
+    setInterval(drawOrbitalCycle, 60000);
+  </script>
+    </section>
+    
