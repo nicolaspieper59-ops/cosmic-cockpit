@@ -1,49 +1,75 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0ff" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cockpit Cosmique</title>
-  <link rel="manifest" href="manifest.json" />
-  <script src="settings.js"></script>
-  <style>
-    body {
-      margin: 0;
-      background: radial-gradient(#000, #111);
-      color: #fff;
-      font-family: monospace;
-    }
-    .module { margin-bottom: 2em; }
-    .hidden { display: none; }
-  </style>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="icon-192.png">
 </head>
 <body>
-  <h1 style="text-align:center;">🪐 Cockpit Cosmique</h1>
+  <div id="cosmicPanel">
+    <h2>🧬 Modules actifs</h2>
+    <div class="moduleToggle">
+      <input type="checkbox" id="vitesseToggle">
+      <label for="vitesseToggle">🚀 Vitesse classique</label>
+    </div>
+    <div class="moduleToggle">
+      <input type="checkbox" id="rtxToggle">
+      <label for="rtxToggle">🌐 RTX Vitesse Cosmique</label>
+    </div>
+    <div class="moduleToggle">
+      <input type="checkbox" id="inertielToggle">
+      <label for="inertielToggle">🕳️ Mode sous-terrain</label>
+    </div>
+  </div>
 
-  <div id="modules"></div>
+  <div id="moduleContainer"></div>
 
+  <script src="settings.js"></script>
   <script>
-    const modules = [
-      'interface',
-      'vitesse',
-      'soleil-lune',
-      'orbital',
-      'sphere',
-      'meteo',
-      'capteurs'
-    ];
+    const modules = {
+      vitesseToggle: "modules/vitesse.html",
+      rtxToggle: "modules/rtx-vitesse.html",
+      inertielToggle: "modules/inertiel.html"
+    };
 
-    modules.forEach(name => {
-      fetch(`modules/${name}.html`)
-        .then(res => res.text())
-        .then(html => {
-          const container = document.createElement('div');
-          container.innerHTML = html;
-          document.getElementById('modules').appendChild(container);
-        });
+    Object.entries(modules).forEach(([id, path]) => {
+      const toggle = document.getElementById(id);
+      toggle.checked = localStorage.getItem(id) === "true";
+      toggle.addEventListener("change", () => {
+        localStorage.setItem(id, toggle.checked);
+        if (toggle.checked) chargerModule(path);
+      });
+      if (toggle.checked) chargerModule(path);
     });
+
+    // GPS Watcher pour mode inertiel
+    navigator.geolocation.watchPosition(pos => {
+      const { accuracy, altitude } = pos.coords;
+      const sousTerre = altitude < 0 || accuracy > 100;
+      if (sousTerre && !localStorage.getItem("inertielToggle")) {
+        localStorage.setItem("inertielToggle", true);
+        chargerModule("modules/inertiel.html");
+        document.getElementById("inertielToggle").checked = true;
+      }
+    });
+
+    // Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log("✅ Service worker cosmique activé"))
+        .catch(err => console.error("❌ Échec SW", err));
+    }
+
+    function chargerModule(url) {
+      fetch(url).then(r => r.text()).then(html => {
+        const div = document.createElement("div");
+        div.innerHTML = html;
+        document.getElementById("moduleContainer").appendChild(div);
+      });
+    }
   </script>
 </body>
-  </html>
-  
+</html>
