@@ -1,0 +1,99 @@
+<section id="spherePanel" class="module">
+  <style>
+    #orbitalSphere {
+      background: radial-gradient(#000, #111);
+      border-radius: 50%;
+      box-shadow: 0 0 24px #0ff inset;
+      margin-top: 1em;
+      cursor: grab;
+      display: block;
+    }
+  </style>
+
+  <h3>🌌 Sphère orbitale interactive</h3>
+  <canvas id="orbitalSphere" width="400" height="400"></canvas>
+
+  <script>
+    const canvas = document.getElementById('orbitalSphere');
+    const ctx = canvas.getContext('2d');
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = 140;
+    const lon = 5.3698;
+
+    let vitessePrecedente = 0;
+
+    function heureSolaireAngle(date, longitude) {
+      const minutesUTC = date.getUTCHours() * 60 + date.getUTCMinutes();
+      const offset = longitude * 4;
+      const minutesSolaires = (minutesUTC + offset + 1440) % 1440;
+      return (minutesSolaires / 1440) * 2 * Math.PI;
+    }
+
+    function phaseLunaire(date) {
+      const synodique = 29.53058867;
+      const newMoon = new Date('2025-09-03T06:00:00Z');
+      const diff = (date - newMoon) / (1000 * 60 * 60 * 24);
+      const phase = (diff % synodique) / synodique;
+      return +(phase * 100).toFixed(2);
+    }
+
+    function estimerPrecisionGPS(hdop = 0.9, satellites = 10, deltaV = 0.2) {
+      const hdopScore = hdop < 1 ? 100 : hdop < 2 ? 90 : hdop < 5 ? 70 : 50;
+      const satScore = Math.min(100, satellites * 10);
+      const stabilité = deltaV < 0.5 ? 100 : deltaV < 1 ? 80 : 60;
+      return Math.round((hdopScore + satScore + stabilité) / 3);
+    }
+
+    function corrigerVitesse(vBrute, precision) {
+      if (precision < 50) return 0;
+      return vBrute * (precision / 100);
+    }
+
+    function drawOrbitalSphere() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const now = new Date();
+      const solarAngle = heureSolaireAngle(now, lon);
+      const phase = phaseLunaire(now) / 100;
+      const lunarAngle = solarAngle + Math.PI * phase;
+
+      // Simulation de vitesse brute
+      const vBrute = Math.random() * 5;
+      const deltaV = Math.abs(vBrute - vitessePrecedente);
+      const precision = estimerPrecisionGPS(0.9, 10, deltaV);
+      const vCorrigee = corrigerVitesse(vBrute, precision);
+      vitessePrecedente = vBrute;
+
+      const rotationSpeed = Math.min(0.01 + vCorrigee / 100, 0.05);
+
+      // Soleil
+      const sunX = centerX + radius * Math.sin(solarAngle);
+      const sunY = centerY + radius * Math.cos(solarAngle);
+      ctx.beginPath();
+      ctx.arc(sunX, sunY, 12, 0, 2 * Math.PI);
+      ctx.fillStyle = '#ffcc00';
+      ctx.shadowColor = '#ffcc00';
+      ctx.shadowBlur = 16;
+      ctx.fill();
+
+      // Lune
+      const moonX = centerX + radius * Math.sin(lunarAngle);
+      const moonY = centerY + radius * Math.cos(lunarAngle);
+      ctx.beginPath();
+      ctx.arc(moonX, moonY, 10, 0, 2 * Math.PI);
+      ctx.fillStyle = '#ccccff';
+      ctx.shadowColor = '#ccccff';
+      ctx.shadowBlur = 12;
+      ctx.fill();
+
+      // Noyau central
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, 8, 0, 2 * Math.PI);
+      ctx.fillStyle = '#0ff';
+      ctx.fill();
+    }
+
+    drawOrbitalSphere();
+    setInterval(drawOrbitalSphere, 1000);
+  </script>
+</section>
