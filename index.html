@@ -7,11 +7,41 @@
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="icon-192.png">
+  <style>
+    /* Ajoutez ce style pour le bouton marche/arrêt */
+    .power-btn {
+      display: inline-block;
+      background: #222;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      font-size: 2rem;
+      cursor: pointer;
+      margin-right: 12px;
+      transition: background 0.2s;
+    }
+    .power-btn.on {
+      background: #00c853;
+      color: #fff;
+    }
+    .power-btn.off {
+      background: #d32f2f;
+      color: #fff;
+    }
+    .vitesseGroup {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+  </style>
 </head>
 <body>
   <div id="cosmicPanel">
     <h2>🧬 Modules actifs</h2>
-    <div class="moduleToggle">
+    <div class="moduleToggle vitesseGroup">
+      <button id="powerVitesse" class="power-btn off" aria-label="Marche/Arrêt Vitesse">⏻</button>
       <input type="checkbox" id="vitesseToggle">
       <label for="vitesseToggle">🚀 Vitesse classique</label>
     </div>
@@ -35,7 +65,53 @@
       inertielToggle: "modules/inertiel.html"
     };
 
+    function chargerModule(url) {
+      fetch(url).then(r => r.text()).then(html => {
+        const div = document.createElement("div");
+        div.innerHTML = html;
+        document.getElementById("moduleContainer").appendChild(div);
+      });
+    }
+
+    // Ajout du bouton marche/arrêt pour le module vitesse
+    const powerBtn = document.getElementById("powerVitesse");
+    const vitesseToggle = document.getElementById("vitesseToggle");
+
+    // Initialisation de l'état du bouton et du toggle
+    function majPowerBtnEtat() {
+      if (vitesseToggle.checked) {
+        powerBtn.classList.remove("off");
+        powerBtn.classList.add("on");
+        powerBtn.title = "Désactiver le module Vitesse";
+      } else {
+        powerBtn.classList.remove("on");
+        powerBtn.classList.add("off");
+        powerBtn.title = "Activer le module Vitesse";
+      }
+    }
+
+    // Synchronisation initiale à partir du stockage local
+    vitesseToggle.checked = localStorage.getItem("vitesseToggle") === "true";
+    majPowerBtnEtat();
+
+    // Gestion du clic sur le bouton marche/arrêt
+    powerBtn.addEventListener("click", () => {
+      vitesseToggle.checked = !vitesseToggle.checked;
+      localStorage.setItem("vitesseToggle", vitesseToggle.checked);
+      majPowerBtnEtat();
+      if (vitesseToggle.checked) chargerModule(modules.vitesseToggle);
+    });
+
+    // Gestion du changement direct sur le checkbox
+    vitesseToggle.addEventListener("change", () => {
+      localStorage.setItem("vitesseToggle", vitesseToggle.checked);
+      majPowerBtnEtat();
+      if (vitesseToggle.checked) chargerModule(modules.vitesseToggle);
+    });
+
+    // Initialisation des autres modules
     Object.entries(modules).forEach(([id, path]) => {
+      if (id === "vitesseToggle") return; // Déjà géré ci-dessus
       const toggle = document.getElementById(id);
       toggle.checked = localStorage.getItem(id) === "true";
       toggle.addEventListener("change", () => {
@@ -62,14 +138,6 @@
         .then(() => console.log("✅ Service worker cosmique activé"))
         .catch(err => console.error("❌ Échec SW", err));
     }
-
-    function chargerModule(url) {
-      fetch(url).then(r => r.text()).then(html => {
-        const div = document.createElement("div");
-        div.innerHTML = html;
-        document.getElementById("moduleContainer").appendChild(div);
-      });
-    }
   </script>
 </body>
-</html>
+  </html>
